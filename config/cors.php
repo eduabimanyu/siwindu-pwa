@@ -1,0 +1,45 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cross-Origin Resource Sharing (CORS) Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure your settings for cross-origin resource sharing
+    | or "CORS". This determines what cross-origin operations may execute
+    | in web browsers. You are free to adjust these settings as needed.
+    |
+    | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+    |
+    */
+
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+    'allowed_methods' => ['*'],
+
+    'allowed_origins' => [
+        'http://localhost:3000', // Next.js frontend
+        'http://127.0.0.1:3000',
+        'http://localhost:8080', // PWA frontend (old)
+        'http://127.0.0.1:8080',
+        'http://localhost:5173', // Vue 3 PWA frontend (new)
+        'http://127.0.0.1:5173',
+        'http://192.168.1.3:5173', // Local network access
+        'http://192.168.1.4:5173', // Mobile device access
+    ],
+
+    'allowed_origins_patterns' => [
+        '/^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:\d+$/', // Allow any local network IP
+    ],
+
+    'allowed_headers' => ['*'],
+
+    'exposed_headers' => [],
+
+    'max_age' => 0,
+
+    'supports_credentials' => true, // Important for Sanctum
+
+];

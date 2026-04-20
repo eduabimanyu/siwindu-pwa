@@ -1,0 +1,5 @@
+
+RewriteEngine on
+RewriteCond %{HTTP_HOST} ^siwindu\.com\.perumdaaukuningan\.id$
+RewriteRule ^/?$ "https\:\/\/siwindu\.com\.perumdaaukuningan\.id\/" [R=301,L]
+
