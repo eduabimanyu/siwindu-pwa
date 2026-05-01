@@ -49,6 +49,12 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/shift-print/:id',
+        name: 'ShiftPrint',
+        component: () => import('@/views/ShiftPrint.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/reports',
         name: 'Reports',
         component: () => import('@/views/Reports.vue'),

@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Navigation Bar -->
-    <Navbar title="Shift Management" titleClass="text-gray-900" showBack @back="$router.push('/dashboard')" />
+    <Navbar title="Manajemen Shift" titleClass="text-gray-900" showBack @back="$router.push('/dashboard')" />
 
     <div class="max-w-7xl mx-auto px-4 py-8">
       <!-- Loading State -->
@@ -173,7 +173,7 @@
 
         <!-- Shift History Section -->
         <div class="mt-8 bg-white rounded-lg shadow">
-          <div class="p-6 border-b border-gray-200">
+          <div class="p-3 border-b border-gray-200">
             <h3 class="text-xl font-semibold text-gray-900">Riwayat Shift</h3>
           </div>
           
@@ -191,39 +191,47 @@
             <!-- History List -->
             <div v-else class="space-y-4">
               <div
-                v-for="shift in shiftHistory"
+                v-for="shift in paginatedHistory"
                 :key="shift.id_shift"
-                class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+                class="bg-white rounded-lg shadow-sm hover:shadow-md transition p-4"
               >
-                <div class="flex justify-between items-start">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-3 mb-2">
-                      <span class="font-semibold text-gray-900">Shift #{{ shift.id_shift }}</span>
-                      <span class="px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <!-- Header: ID + Badge -->
+                    <div class="flex items-center flex-wrap gap-2 mb-3">
+                      <span class="text-sm font-bold text-gray-900">Shift #{{ shift.id_shift }}</span>
+                      <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-green-500 text-white">
                         Selesai
                       </span>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p class="text-gray-600">Tanggal</p>
-                        <p class="font-medium">{{ formatDate(shift.created_at) }}</p>
+
+                    <!-- Info Rows -->
+                    <div class="space-y-1 text-sm">
+                      <div class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span class="text-gray-500">{{ formatDate(shift.created_at) }}</span>
+                        <span class="text-gray-400">·</span>
+                        <span class="text-gray-500">{{ formatTime(shift.created_at) }}</span>
                       </div>
-                      <div>
-                        <p class="text-gray-600">Modal Awal</p>
-                        <p class="font-medium">{{ formatCurrency(shift.saldo_tunai) }}</p>
+                      <div class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="font-semibold text-gray-900">{{ formatCurrency(shift.pendapatan) }}</span>
                       </div>
-                      <div>
-                        <p class="text-gray-600">Pendapatan</p>
-                        <p class="font-medium">{{ formatCurrency(shift.pendapatan) }}</p>
-                      </div>
-                      <div>
-                        <p class="text-gray-600">Item Terjual</p>
-                        <p class="font-medium">{{ shift.item_terjual }}</p>
+                      <div class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        <span class="text-gray-500">{{ shift.item_terjual }} item terjual</span>
                       </div>
                     </div>
                   </div>
-                  
-                  <div class="flex flex-row space-x-2 ml-4">
+
+                  <!-- Action Buttons -->
+                  <div class="flex flex-col gap-2 ml-3 flex-shrink-0">
                     <button
                       @click="viewShiftDetail(shift.id_shift)"
                       class="p-2 bg-yellow-400 text-gray-800 rounded-lg hover:bg-yellow-500 transition"
@@ -235,7 +243,7 @@
                       </svg>
                     </button>
                     <button
-                      @click="showPrintOptions(shift.id_shift)"
+                      @click="printThermal(shift.id_shift)"
                       class="p-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition"
                       title="Print"
                     >
@@ -246,6 +254,28 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+
+            <!-- Pagination Controls -->
+            <div v-if="totalPages > 1" class="mt-6 flex justify-between items-center p-2">
+              <button 
+                @click="currentPage--" 
+                :disabled="currentPage === 1"
+                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+              <span class="text-sm text-gray-700">
+                Page <span class="font-medium">{{ currentPage }}</span> of <span class="font-medium">{{ totalPages }}</span>
+              </span>
+              <button 
+                @click="currentPage++" 
+                :disabled="currentPage === totalPages"
+                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
@@ -324,7 +354,7 @@
           </button>
           <button
             @click="handleEndShift"
-            :disabled="endingShift || !endShiftData.actualCash"
+            :disabled="endingShift || endShiftData.actualCash === null || endShiftData.actualCash === '' || endShiftData.actualCash < 0"
             class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
           >
             <span v-if="endingShift">Mengakhiri...</span>
@@ -334,162 +364,153 @@
       </div>
     </div>
 
-    <!-- Print Options Modal -->
-    <div
-      v-if="showPrintModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-      @click.self="showPrintModal = false"
-    >
-      <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-4">Pilih Opsi Print</h3>
-        
-        <div class="space-y-3">
-          <button
-            @click="printThermal"
-            class="w-full flex items-center justify-between px-4 py-3 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-          >
-            <div class="flex items-center space-x-3">
-              <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-              </svg>
-              <span class="font-medium">Thermal Printer</span>
-            </div>
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </button>
 
-          <button
-            @click="downloadPDF"
-            class="w-full flex items-center justify-between px-4 py-3 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-          >
-            <div class="flex items-center space-x-3">
-              <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-              <span class="font-medium">Download PDF</span>
-            </div>
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </button>
-        </div>
-
-        <button
-          @click="showPrintModal = false"
-          class="w-full mt-4 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
-        >
-          Batal
-        </button>
-      </div>
-    </div>
 
     <!-- Shift Detail Modal -->
     <div
       v-if="showDetailModal && selectedShiftDetail"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
       @click.self="showDetailModal = false"
     >
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 my-8">
-        <div class="flex justify-between items-start mb-6">
-          <h3 class="text-xl font-bold text-gray-900">Detail Shift #{{ selectedShiftDetail.shift?.id_shift }}</h3>
-          <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-lg max-h-[92vh] flex flex-col">
+
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+          <div>
+            <h3 class="text-base font-bold text-gray-900">Detail Shift</h3>
+            <p class="text-xs text-gray-400 mt-0.5">#{{ selectedShiftDetail.shift?.id_shift }}</p>
+          </div>
+          <button
+            @click="showDetailModal = false"
+            class="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
         </div>
 
-        <div class="space-y-4">
-          <!-- Shift Info -->
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-gray-50 rounded-lg p-4">
-              <p class="text-sm text-gray-600">Tanggal Mulai</p>
-              <p class="font-semibold">{{ formatDate(selectedShiftDetail.shift?.created_at) }}</p>
-              <p class="text-sm text-gray-600">{{ formatTime(selectedShiftDetail.shift?.created_at) }}</p>
-            </div>
-            <div class="bg-gray-50 rounded-lg p-4">
-              <p class="text-sm text-gray-600">Tanggal Selesai</p>
-              <p class="font-semibold">{{ formatDate(selectedShiftDetail.shift?.updated_at) }}</p>
-              <p class="text-sm text-gray-600">{{ formatTime(selectedShiftDetail.shift?.updated_at) }}</p>
-            </div>
+        <!-- Scrollable Content -->
+        <div class="overflow-y-auto flex-1">
+
+          <!-- Status Badge -->
+          <div class="px-5 pt-4 pb-3">
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+              Selesai
+            </span>
           </div>
 
-          <!-- Financial Summary -->
-          <div class="border-t pt-4">
-            <h4 class="font-semibold mb-3">Ringkasan Keuangan</h4>
-            <div class="space-y-2">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Modal Awal:</span>
-                <span class="font-medium">{{ formatCurrency(selectedShiftDetail.shift?.saldo_tunai) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Total Pendapatan:</span>
-                <span class="font-medium">{{ formatCurrency(selectedShiftDetail.stats?.pendapatan) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Item Terjual:</span>
-                <span class="font-medium">{{ selectedShiftDetail.stats?.item_terjual }}</span>
-              </div>
+          <!-- Shift Info Rows -->
+          <div class="px-5 pb-4 space-y-0 text-sm divide-y divide-gray-100">
+            <div class="flex items-center justify-between py-2.5">
+              <span class="text-gray-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Dimulai
+              </span>
+              <span class="font-medium text-gray-800">
+                {{ formatDate(selectedShiftDetail.shift?.created_at) }} · {{ formatTime(selectedShiftDetail.shift?.created_at) }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between py-2.5">
+              <span class="text-gray-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Selesai
+              </span>
+              <span class="font-medium text-gray-800">
+                {{ formatDate(selectedShiftDetail.shift?.updated_at) }} · {{ formatTime(selectedShiftDetail.shift?.updated_at) }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between py-2.5">
+              <span class="text-gray-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Modal Awal
+              </span>
+              <span class="font-medium text-gray-800">{{ formatCurrency(selectedShiftDetail.shift?.saldo_tunai) }}</span>
+            </div>
+            <div class="flex items-center justify-between py-2.5">
+              <span class="text-gray-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                </svg>
+                Item Terjual
+              </span>
+              <span class="font-medium text-gray-800">{{ selectedShiftDetail.stats?.item_terjual || 0 }} item</span>
             </div>
           </div>
 
           <!-- Payment Breakdown -->
-          <div class="border-t pt-4">
-            <h4 class="font-semibold mb-3">Rincian Pembayaran</h4>
-            <div class="grid grid-cols-2 gap-3">
-              <div class="bg-blue-50 rounded-lg p-3">
-                <p class="text-sm text-gray-600">Tunai</p>
-                <p class="font-semibold">{{ formatCurrency(selectedShiftDetail.stats?.payment_breakdown?.tunai || 0) }}</p>
+          <div class="px-5 pb-4">
+            <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Rincian Pembayaran</h4>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="bg-blue-50 rounded-xl px-3 py-2.5">
+                <p class="text-xs text-gray-500 mb-0.5">Tunai</p>
+                <p class="font-semibold text-gray-900">{{ formatCurrency(selectedShiftDetail.stats?.payment_breakdown?.tunai || 0) }}</p>
               </div>
-              <div class="bg-green-50 rounded-lg p-3">
-                <p class="text-sm text-gray-600">Transfer Bank</p>
-                <p class="font-semibold">{{ formatCurrency(selectedShiftDetail.stats?.payment_breakdown?.transfer || 0) }}</p>
+              <div class="bg-green-50 rounded-xl px-3 py-2.5">
+                <p class="text-xs text-gray-500 mb-0.5">Transfer Bank</p>
+                <p class="font-semibold text-gray-900">{{ formatCurrency(selectedShiftDetail.stats?.payment_breakdown?.transfer || 0) }}</p>
               </div>
-              <div class="bg-purple-50 rounded-lg p-3">
-                <p class="text-sm text-gray-600">QRIS</p>
-                <p class="font-semibold">{{ formatCurrency(selectedShiftDetail.stats?.payment_breakdown?.qris || 0) }}</p>
+              <div class="bg-purple-50 rounded-xl px-3 py-2.5">
+                <p class="text-xs text-gray-500 mb-0.5">QRIS</p>
+                <p class="font-semibold text-gray-900">{{ formatCurrency(selectedShiftDetail.stats?.payment_breakdown?.qris || 0) }}</p>
               </div>
-              <div class="bg-orange-50 rounded-lg p-3">
-                <p class="text-sm text-gray-600">E-Wallet</p>
-                <p class="font-semibold">{{ formatCurrency(selectedShiftDetail.stats?.payment_breakdown?.ewallet || 0) }}</p>
+              <div class="bg-orange-50 rounded-xl px-3 py-2.5">
+                <p class="text-xs text-gray-500 mb-0.5">E-Wallet</p>
+                <p class="font-semibold text-gray-900">{{ formatCurrency(selectedShiftDetail.stats?.payment_breakdown?.ewallet || 0) }}</p>
               </div>
             </div>
           </div>
 
           <!-- Product Breakdown -->
-          <div v-if="selectedShiftDetail.stats?.product_breakdown?.length > 0" class="border-t pt-4">
-            <h4 class="font-semibold mb-3">Detail Produk Terjual</h4>
-            <div class="space-y-2">
-              <div 
-                v-for="(product, index) in selectedShiftDetail.stats.product_breakdown" 
+          <div v-if="selectedShiftDetail.stats?.product_breakdown?.length > 0" class="px-5 pb-3">
+            <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Tiket Terjual</h4>
+            <div class="divide-y divide-gray-100">
+              <div
+                v-for="(product, index) in selectedShiftDetail.stats.product_breakdown"
                 :key="index"
-                class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                class="flex items-start justify-between py-3"
               >
-                <div class="flex-1">
-                  <p class="font-medium text-gray-900">{{ product.item_name }}</p>
-                  <p class="text-sm text-gray-600">{{ formatCurrency(product.price) }} × {{ product.quantity }}</p>
+                <div class="flex-1 pr-4">
+                  <p class="font-medium text-gray-900 text-sm leading-snug">{{ product.item_name }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ product.quantity }} × {{ formatCurrency(product.price) }}</p>
                 </div>
-                <p class="font-semibold text-gray-900">{{ formatCurrency(product.subtotal) }}</p>
+                <p class="text-sm font-semibold text-gray-900 whitespace-nowrap">{{ formatCurrency(product.subtotal) }}</p>
               </div>
             </div>
           </div>
+
+          <!-- Total Pendapatan -->
+          <div class="mx-5 mb-5 bg-gray-50 rounded-xl px-4 py-3 flex items-center justify-between">
+            <span class="text-sm font-bold text-gray-700">TOTAL PENDAPATAN</span>
+            <span class="text-lg font-bold text-primary-600">{{ formatCurrency(selectedShiftDetail.stats?.pendapatan) }}</span>
+          </div>
         </div>
 
-        <div class="mt-6 flex space-x-3">
+        <!-- Action Buttons -->
+        <div class="px-5 py-4 border-t border-gray-100 flex gap-3 flex-shrink-0">
+          <button
+            @click="printThermal(selectedShiftDetail.shift?.id_shift)"
+            class="flex-1 flex items-center justify-center gap-2 bg-primary-600 text-white py-2.5 rounded-xl hover:bg-primary-700 font-medium text-sm transition"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print Laporan
+          </button>
           <button
             @click="showDetailModal = false"
-            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+            class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl hover:bg-gray-200 font-medium text-sm transition"
           >
             Tutup
           </button>
-          <button
-            @click="showPrintOptions(selectedShiftDetail.shift?.id_shift)"
-            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-          >
-            Print Laporan
-          </button>
         </div>
+
       </div>
     </div>
   </div>
@@ -522,6 +543,10 @@ const shiftHistory = ref([]);
 const loadingHistory = ref(false);
 const currentUser = ref(null);
 
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = 5;
+
 // Start Shift
 const startingShift = ref(false);
 const startShiftData = ref({
@@ -536,9 +561,7 @@ const endShiftData = ref({
   notes: ''
 });
 
-// Print
-const showPrintModal = ref(false);
-const selectedPrintShiftId = ref(null);
+
 
 // Detail
 const showDetailModal = ref(false);
@@ -562,6 +585,16 @@ const expectedCash = computed(() => {
 
 const cashDifference = computed(() => {
   return endShiftData.value.actualCash - expectedCash.value;
+});
+
+const paginatedHistory = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return shiftHistory.value.slice(start, end);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(shiftHistory.value.length / itemsPerPage);
 });
 
 // Methods
@@ -692,55 +725,10 @@ const viewShiftDetail = async (shiftId) => {
   }
 };
 
-const showPrintOptions = (shiftId) => {
-  selectedPrintShiftId.value = shiftId;
-  showPrintModal.value = true;
-  showDetailModal.value = false;
-};
 
-const printThermal = async () => {
-  try {
-    const data = await ShiftService.getThermalPrintData(selectedPrintShiftId.value);
-    
-    // Open print window with thermal format
-    const printWindow = window.open('', '_blank', 'width=300,height=600');
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Print Shift #${selectedPrintShiftId.value}</title>
-          <style>
-            body { font-family: monospace; font-size: 12px; margin: 0; padding: 10px; }
-            .center { text-align: center; }
-            .bold { font-weight: bold; }
-            .line { border-top: 1px dashed #000; margin: 5px 0; }
-            table { width: 100%; }
-            td { padding: 2px 0; }
-            .right { text-align: right; }
-          </style>
-        </head>
-        <body>
-          ${data.html || '<p>No data available</p>'}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-    
-    showPrintModal.value = false;
-  } catch (err) {
-    console.error('Error printing thermal:', err);
-    alert('Gagal mencetak. Silakan coba lagi.');
-  }
-};
 
-const downloadPDF = async () => {
-  try {
-    await ShiftService.downloadPDF(selectedPrintShiftId.value);
-    showPrintModal.value = false;
-  } catch (err) {
-    console.error('Error downloading PDF:', err);
-    alert('Gagal mengunduh PDF. Silakan coba lagi.');
-  }
+const printThermal = (shiftId) => {
+  router.push(`/shift-print/${shiftId}`);
 };
 
 // Utility functions

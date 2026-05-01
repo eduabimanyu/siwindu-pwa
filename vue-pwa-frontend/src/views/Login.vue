@@ -87,7 +87,7 @@
 
       <!-- PWA Info -->
       <div class="text-center text-xs text-gray-500">
-        <p>Aplikasi ini dapat diinstall di perangkat Anda</p>
+           <p>Copyright &copy; Siwindu 2026.</p>
       </div>
     </div>
   </div>

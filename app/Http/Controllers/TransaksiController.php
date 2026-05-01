@@ -51,6 +51,11 @@ class TransaksiController extends Controller
                 // Admin, Manager, Keuangan can see all transactions
                 if (in_array('kasir', array_map('strtolower', $userRoles))) {
                     $query->where('id_user', auth()->id());
+                } else {
+                    // Manager/Admin: allow filtering by wisata
+                    if ($request->has('wisata') && $request->wisata) {
+                        $query->where('wisata', $request->wisata);
+                    }
                 }
             }
 

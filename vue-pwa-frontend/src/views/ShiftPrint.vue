@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Navbar -->
-    <Navbar title="Struk Pembelian">
+    <Navbar title="Laporan Shift">
       <template #right>
         <button
           @click="printReceipt"
@@ -13,10 +13,10 @@
           Print
         </button>
         <button
-          @click="backToPOS"
+          @click="backToShift"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
         >
-          Kembali ke POS
+          Kembali ke Shift
         </button>
       </template>
     </Navbar>
@@ -26,17 +26,17 @@
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-        <p class="mt-4 text-gray-600">Loading receipt...</p>
+        <p class="mt-4 text-gray-600">Loading laporan...</p>
       </div>
 
       <!-- Error State -->
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4">
         <p class="text-red-800">{{ error }}</p>
         <button
-          @click="backToPOS"
+          @click="backToShift"
           class="mt-4 w-full bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700"
         >
-          Kembali ke POS
+          Kembali ke Shift
         </button>
       </div>
 
@@ -52,7 +52,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Navbar from '@/components/layout/Navbar.vue';
-import api from '@/services/api';
+import ShiftService from '@/services/ShiftService';
 
 const route = useRoute();
 const router = useRouter();
@@ -66,16 +66,16 @@ const fetchReceiptData = async () => {
     loading.value = true;
     error.value = null;
     
-    const transactionId = route.params.id;
-    if (!transactionId) {
-      throw new Error('Transaction ID not found');
+    const shiftId = route.params.id;
+    if (!shiftId) {
+      throw new Error('Shift ID not found');
     }
 
-    const response = await api.getTransactionThermalData(transactionId);
-    receiptHtml.value = response.data.html;
+    const response = await ShiftService.getThermalPrintData(shiftId);
+    receiptHtml.value = response.html; // Note: getThermalPrintData returns the data directly, not response.data
   } catch (err) {
-    console.error('Failed to fetch receipt:', err);
-    error.value = err.response?.data?.message || 'Failed to load receipt';
+    console.error('Failed to fetch shift report:', err);
+    error.value = err.response?.data?.message || 'Failed to load shift report';
   } finally {
     loading.value = false;
   }
@@ -87,7 +87,7 @@ const printReceipt = () => {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>Print Receipt #${route.params.id}</title>
+        <title>Print Shift #${route.params.id}</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
@@ -126,8 +126,8 @@ const printReceipt = () => {
   printWindow.print();
 };
 
-const backToPOS = () => {
-  router.push('/pos');
+const backToShift = () => {
+  router.push('/shift');
 };
 
 onMounted(() => {

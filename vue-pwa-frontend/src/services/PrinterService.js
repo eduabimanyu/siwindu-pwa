@@ -1,7 +1,7 @@
 class PrinterService {
     constructor() {
         this.device = null;
-        this.server = null;
+        this.server = null; 
         this.characteristic = null;
     }
 

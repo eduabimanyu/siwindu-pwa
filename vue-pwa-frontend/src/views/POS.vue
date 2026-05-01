@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Navbar with Back Button -->
-    <Navbar title="POS - Point of Sale" showBack @back="goToDashboard" />
+    <Navbar title="Transaksi Baru" titleClass="text-gray-900" showBack @back="goToDashboard" />
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

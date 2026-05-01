@@ -26,6 +26,8 @@ return [
         'http://127.0.0.1:8080',
         'http://localhost:5173', // Vue 3 PWA frontend (new)
         'http://127.0.0.1:5173',
+        'http://localhost:4173', // Vue 3 PWA preview mode
+        'http://127.0.0.1:4173',
         'http://192.168.1.3:5173', // Local network access
         'http://192.168.1.4:5173', // Mobile device access
     ],
