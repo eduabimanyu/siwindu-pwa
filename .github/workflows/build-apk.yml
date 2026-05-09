@@ -33,6 +33,8 @@ jobs:
 
       - name: Build Vue Project
         working-directory: ./vue-pwa-frontend
+        env:
+          VITE_API_URL: https://siwindu.my.id/api
         run: npm run build
 
       - name: Copy Web Assets to Android
