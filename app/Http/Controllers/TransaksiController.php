@@ -387,7 +387,7 @@ class TransaksiController extends Controller
     public function store(Request $request)
     {
         // Check if this is an API call from POS (new format)
-        if ($request->expectsJson() || $request->is('api/*')) {
+        if ($request->is('api/*')) {
             return $this->storeFromPOS($request);
         }
 
