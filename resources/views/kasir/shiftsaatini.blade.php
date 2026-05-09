@@ -28,11 +28,11 @@
                               <tbody>
                                 <tr>
                                   <td>Nama Kasir</td>
-                                  <td class="text-right">{{ $shift->user->name }}</td>
+                                  <td class="text-right">{{ optional($shift->user)->name ?? '-' }}</td>
                                 </tr>
                                 <tr>
                                     <td>Wisata</td>
-                                    <td class="text-right">{{ $shift->wisatashift->nama_wisata }}</td>
+                                    <td class="text-right">{{ optional($shift->wisatashift)->nama_wisata ?? '-' }}</td>
                                 </tr>
                                 <tr>
                                     <td>Mulai Shift</td>
