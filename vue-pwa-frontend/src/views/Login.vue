@@ -11,8 +11,8 @@
         <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
           SIWINDU POS
         </h2>
-        <p class="mt-2 text-sm text-gray-600">
-          E-Tiket Wisata
+        <p class="mt-2 text-xs text-gray-600">
+          Perumda Aneka Usaha Kuningan.
         </p>
       </div>
 
@@ -87,7 +87,7 @@
 
       <!-- PWA Info -->
       <div class="text-center text-xs text-gray-500">
-           <p>Copyright &copy; Siwindu 2026.</p>
+           <p>Copyright &copy; Siwindu 2026. version 1.2</p>
       </div>
     </div>
   </div>

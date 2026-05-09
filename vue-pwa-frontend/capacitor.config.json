@@ -1,5 +1,9 @@
 {
   "appId": "com.siwindu.pwa",
-  "appName": "siwindupwa",
-  "webDir": "dist"
+  "appName": "Siwindu POS",
+  "webDir": "dist",
+  "version": "1.2.0",
+  "server": {
+    "url": "https://siwindu.my.id"
+  }
 }

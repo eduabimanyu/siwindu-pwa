@@ -10,7 +10,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'SIWINDU POS - E-Tiket Wisata',
+        name: 'SIWINDU POS - Perumda Aneka Usaha Kuningan',
         short_name: 'SIWINDU POS',
         description: 'Point of Sale untuk E-Tiket Wisata',
         theme_color: '#4F46E5',
