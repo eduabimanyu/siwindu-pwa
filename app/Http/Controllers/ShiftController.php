@@ -49,17 +49,29 @@ class ShiftController extends Controller
     {
         $user = User::where('id', auth()->id())->first();
         $id_shift = $user->id_shift;
-        // $id_shift = session('id_shift');
-        $shift = Shift::find($id_shift);
-        $shiftdetail = Shiftdetail::getcount()->where('id_shift', $id_shift)->where('status', '1')->get();
-        $bayartunai = Shiftdetail::where('id_shift', $id_shift)->where('jenis_pembayaran', 'Tunai')->sum('subtotal');
-        $bayarbank = Shiftdetail::where('id_shift', $id_shift)->where('jenis_pembayaran', 'Transfer Bank')->sum('subtotal');
-        $bayarqris = Shiftdetail::where('id_shift', $id_shift)->where('jenis_pembayaran', 'QRIS')->sum('subtotal');
-        $bayarewalet = Shiftdetail::where('id_shift', $id_shift)->where('jenis_pembayaran', 'Transfer Ewallet')->sum('subtotal');
-        $pendapatan = Shiftdetail::where('id_shift', $id_shift)->where('status', '1')->sum('subtotal');
-        $item = Shiftdetail::where('id_shift', $id_shift)->where('status', '1')->sum('jumlah');
-        return view('kasir.shiftsaatini', compact('item', 'shift', 'id_shift', 'shiftdetail', 'bayartunai', 'bayarbank', 'bayarewalet', 'bayarqris', 'pendapatan'));
 
+        // Guard: kasir belum memulai shift
+        if (!$id_shift) {
+            return redirect()->route('shiftkasir')->with('error', 'Anda belum memulai shift.');
+        }
+
+        // Eager load relasi wisatashift agar tidak null di blade
+        $shift = Shift::with(['wisatashift', 'user'])->find($id_shift);
+
+        // Guard: shift tidak ditemukan di database
+        if (!$shift) {
+            return redirect()->route('shiftkasir')->with('error', 'Data shift tidak ditemukan.');
+        }
+
+        $shiftdetail = Shiftdetail::getcount()->where('id_shift', $id_shift)->where('status', '1')->get();
+        $bayartunai  = Shiftdetail::where('id_shift', $id_shift)->where('jenis_pembayaran', 'Tunai')->sum('subtotal');
+        $bayarbank   = Shiftdetail::where('id_shift', $id_shift)->where('jenis_pembayaran', 'Transfer Bank')->sum('subtotal');
+        $bayarqris   = Shiftdetail::where('id_shift', $id_shift)->where('jenis_pembayaran', 'QRIS')->sum('subtotal');
+        $bayarewalet = Shiftdetail::where('id_shift', $id_shift)->where('jenis_pembayaran', 'Transfer Ewallet')->sum('subtotal');
+        $pendapatan  = Shiftdetail::where('id_shift', $id_shift)->where('status', '1')->sum('subtotal');
+        $item        = Shiftdetail::where('id_shift', $id_shift)->where('status', '1')->sum('jumlah');
+
+        return view('kasir.shiftsaatini', compact('item', 'shift', 'id_shift', 'shiftdetail', 'bayartunai', 'bayarbank', 'bayarewalet', 'bayarqris', 'pendapatan'));
     }
 
     public function store(Request $request)
