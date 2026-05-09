@@ -20,6 +20,9 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        'http://localhost', // Capacitor Android
+        'capacitor://localhost', // Capacitor iOS
+        'https://localhost',
         'http://localhost:3000', // Next.js frontend
         'http://127.0.0.1:3000',
         'http://localhost:8080', // PWA frontend (old)
